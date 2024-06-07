@@ -40,10 +40,12 @@ tokens =(
     "LBRACKET", # LISTS
     "RBRACKET", # LISTS
     "APPEND",
-    "POP"
+    "POP",
+    "NONE"
 )
 
 #---------- Regular expressions -----------------------
+t_NONE = r'None'
 
 t_PLUS = r'\+'
 t_SETTO = r'='
@@ -99,7 +101,12 @@ def add_node(attr):
 
     return parseGraph.nodes[NODE_COUNTER - 1] # Return the node that was just added to the graph.
 
-
+symbol_table["true"] = 1 # Predefined values
+symbol_table["false"] = 0 # Predefined values
+symbol_table["print"] = print # Predefined values
+symbol_table["printP"] = printP # Predefined values
+symbol_table["printP2"] = printP2 # Predefined values
+symbol_table["exit"] = "exit" # Predefined values
 
 symbol_table["load_image"] = load_image # Predefined values
 symbol_table["save_image"] = save_image # Predefined values
@@ -345,7 +352,6 @@ def p_list_append(p):
     expression : VARIABLE APPEND LPAREN expression RPAREN
     '''
     node = add_node({"type":"APPEND", "label":"append", "value":""})
-    print("HERE *** ", p[1])
     parseGraph.add_edge(node["counter"], add_node({"type":"VARIABLE", "label":f"VAR_{p[1]}", "value":p[1]})["counter"])
     parseGraph.add_edge(node["counter"], p[4]["counter"])
     p[0] = node
@@ -605,7 +611,6 @@ def visit_node(tree, node_id, from_id):
         try:
             return symbol_table[current_node["value"]] # Return the value of the variable from the symbol table.
         except:
-            print(f"Error: Variable {current_node['value']} not found")
             return "Error"
     if current_node["type"] == "MINUS":
         return res[0] - res[1] # Return the difference of the two children nodes.
